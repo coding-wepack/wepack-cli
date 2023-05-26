@@ -41,7 +41,7 @@ This command publish artifacts to a WePack Artifact Registry.
 
 Examples:
     # Publish go artifacts to a WePack Artifact Registry:
-    $ wp go push --module coding.net/wepack/cli@v1.0.0 --repo "https://demo-go.pkg.coding.net/project/repo/" -u test -p test_pwd
+    $ wp go push --module github.com/coding-wepack/wepack-cli@v0.0.1 --repo "https://demo-go.pkg.wepack.net/project/repo/" -u test -p test_pwd
 
 Flags '--module' and '--repo' must be set.
 `
@@ -58,8 +58,8 @@ func newGoPushCmd() *cobra.Command {
 	}
 
 	// required flags
-	cmd.Flags().StringVarP(&settings.Repo, "repo", "r", "", `e.g., --repo https://demo-go.pkg.coding.net/project/repo/ or -r https://demo-go.pkg.coding.net/project/repo/`)
-	cmd.Flags().StringVarP(&settings.Module, "module", "m", "", `e.g., --module coding.net/wepack/cli@v1.0.0 or -m coding.net/wepack/cli@v1.0.0`)
+	cmd.Flags().StringVarP(&settings.Repo, "repo", "r", "", `e.g., --repo https://demo-go.pkg.wepack.net/project/repo/ or -r https://demo-go.pkg.wepack.net/project/repo/`)
+	cmd.Flags().StringVarP(&settings.Module, "module", "m", "", `e.g., --module github.com/coding-wepack/wepack-cli@v0.0.1 or -m github.com/coding-wepack/wepack-cli@v0.0.1`)
 	cmd.Flags().StringVarP(&settings.Username, "username", "u", "", "e.g., --username test or -u test")
 	cmd.Flags().StringVarP(&settings.Password, "password", "p", "", "e.g., --password test_pwd or -u test_pwd")
 

@@ -23,10 +23,8 @@ import (
 var excludeList = []string{".idea", ".git", "vendor"}
 
 func Push() error {
-	log.Infof("begin to publish go artifacts to %s", settings.Repo)
+	log.Infof("begin to publish go artifacts %s to %s", settings.Module, settings.Repo)
 	if settings.Verbose {
-		log.Debug("artifacts info",
-			logfields.String("module", settings.Module))
 		log.Debug("registry info",
 			logfields.String("repo", settings.Repo),
 			logfields.String("username", settings.Username),
@@ -42,6 +40,7 @@ func Push() error {
 		log.Debugf("mod.path: %s, mod.version: %s", modPath, modVer)
 	}
 
+	log.Info("check go.mod file is in the root dir")
 	// 获取项目下的文件列表
 	filePaths, err := findFileList("./", excludeList)
 	if err != nil {
@@ -53,7 +52,7 @@ func Push() error {
 		return errors.New("the go.mod file must be included in the root dir")
 	}
 
-	log.Infof("begin to create zip file...")
+	log.Infof("processing file path and making zip package...")
 	// 此处使用代码创建 zip 包可以摆脱对执行环境的差异以及是否安装 zip 的影响
 	// 创建一个 zip 压缩文件
 	zipFile, err := os.CreateTemp("./", "*.zip")
@@ -80,7 +79,10 @@ func Push() error {
 
 	// 上传文件
 	url := fmt.Sprintf("%s/%s/@v/%s.zip", strings.Trim(settings.Repo, "/"), modPath, modVer)
-	log.Infof("begin to upload zip file, url: %s, fileName: %s", url, zipFile.Name())
+	log.Info("analyzing the zip package and uploading it to the remote repository")
+	if settings.Verbose {
+		log.Debugf("upload to remote repo url: %s", url)
+	}
 	resp, err := httputil.DefaultClient.Put(url, "", zipFile, settings.Username, settings.Password)
 	if err != nil {
 		return err
@@ -89,7 +91,7 @@ func Push() error {
 	if resp.StatusCode >= http.StatusBadRequest {
 		return errors.Errorf("got an unexpected response status: %s", resp.Status)
 	}
-	log.Infof("artifacts file upload success!")
+	log.Infof("artifacts upload successful!")
 	return nil
 }
 
