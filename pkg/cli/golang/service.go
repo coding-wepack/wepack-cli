@@ -15,11 +15,12 @@ import (
 	"github.com/coding-wepack/wepack-cli/pkg/util/httputil"
 	"github.com/coding-wepack/wepack-cli/pkg/util/ioutils"
 	"github.com/coding-wepack/wepack-cli/pkg/util/sliceutil"
+	"github.com/coding-wepack/wepack-cli/pkg/util/sysutil"
 	"github.com/pkg/errors"
 	"golang.org/x/mod/semver"
 )
 
-var excludeList = []string{".idea/", ".git/"}
+var excludeList = []string{".idea", ".git", "vendor"}
 
 func Push() error {
 	log.Infof("begin to publish go artifacts to %s", settings.Repo)
@@ -113,7 +114,10 @@ func writeFile(filePath string, zipWriter *zip.Writer) error {
 	if err != nil {
 		return err
 	}
-	header.Name = fmt.Sprintf("%s/%s", settings.Module, filePath)
+	header.Name = getZipFileHeaderName(filePath)
+	if settings.Verbose {
+		log.Debugf("zip file %s", header.Name)
+	}
 	// 将文件头写入压缩包
 	writer, err := zipWriter.CreateHeader(header)
 	if err != nil {
@@ -162,4 +166,11 @@ func findFileList(dir string, excludeList []string) (filePaths []string, err err
 		return nil
 	})
 	return
+}
+
+func getZipFileHeaderName(filePath string) string {
+	if sysutil.IsWindows() {
+		filePath = strings.ReplaceAll(filePath, "\\", "/")
+	}
+	return fmt.Sprintf("%s/%s", settings.Module, filePath)
 }
